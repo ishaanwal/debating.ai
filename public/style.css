@@ -1,0 +1,499 @@
+/* Global reset / base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background: #f8f9fa;
+}
+
+/* Sticky Header with Nav */
+.sticky-header {
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+.logo {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: black;
+  margin-right: 2rem;
+}
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.nav-left a {
+  margin-right: 1rem;
+  text-decoration: none;
+  color: #555;
+  font-weight: 500;
+}
+.nav-left a.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+.nav-right {
+  position: relative; /* so the dropdown can position absolutely inside */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Profile Icon (circle with initials) */
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;      /* vertically center initials */
+  justify-content: center; /* horizontally center initials */
+  cursor: pointer;
+  margin-right: 1rem;
+}
+
+/* Profile menu (dropdown) */
+.profile-menu {
+  position: absolute;
+  top: 50px;   /* 10px below the icon's bottom */
+  right: 0;    /* align with the right edge of .nav-right */
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 100px;
+  z-index: 9999;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+.profile-menu a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: #333;
+  text-decoration: none;
+}
+.profile-menu a:hover {
+  background: #eee;
+}
+
+/* Hero Sections */
+.hero-home {
+  background: url('https://via.placeholder.com/1500x400/ddd/000?text=Homepage+Hero') no-repeat center center/cover;
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.hero-home h1 {
+  color: black;
+  margin-bottom: 0.5rem;
+}
+.hero-home p {
+  color: black;
+}
+.hero-debate {
+  background: url('https://via.placeholder.com/1500x300/eee/000?text=Debate+Hero') no-repeat center center/cover;
+  min-height: 30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+}
+.hero-article {
+  background: url('https://via.placeholder.com/1500x300/eee/000?text=Article+Hero') no-repeat center center/cover;
+  min-height: 30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Home Page Debate List */
+.debate-list {
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #fff;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.debate-list ul {
+  list-style: none;
+  padding: 0;
+}
+.debate-list li {
+  margin: 0.75rem 0;
+}
+.debate-list a {
+  color: #007bff;
+  text-decoration: none;
+}
+.debate-list a:hover {
+  text-decoration: underline;
+}
+
+/* Debate Section */
+.debate-section {
+  padding: 2rem 1rem;
+  background: #fff;
+  margin-bottom: 1rem;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+.vote-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+.vote-container h2 {
+  margin-bottom: 1rem;
+}
+.vote-buttons {
+  margin-bottom: 1.5rem;
+}
+.vote-buttons button {
+  background: #ffc107;
+  color: #212529;
+  border: none;
+  margin: 0 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+.vote-buttons button:hover {
+  background: #e0a800;
+}
+.yes-btn {
+  background-color: #28a745;
+  color: #fff;
+}
+.yes-btn:hover {
+  background-color: #218838;
+}
+.no-btn {
+  background-color: #dc3545;
+  color: #fff;
+}
+.no-btn:hover {
+  background-color: #c82333;
+}
+
+/* Progress bars */
+.progress-bars {
+  margin: 1rem 0;
+}
+.progress-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.progress-row span:first-child {
+  width: 50px;
+}
+.progress-row .progress-bar {
+  flex: 1;
+  background: #e9ecef;
+  border-radius: 4px;
+  margin: 0 0.5rem;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 10px;
+  background: #28a745;
+}
+.yes-fill {
+  background-color: #28a745;
+}
+.no-fill {
+  background-color: #dc3545;
+}
+.vote-tally {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+/* Article Section */
+.article-section {
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #fff;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Comments */
+.comments-section {
+  max-width: 800px;
+  margin: 1rem auto;
+  background: #fff;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.comments-section h3 {
+  margin-bottom: 1rem;
+}
+.add-comment {
+  margin-bottom: 1rem;
+}
+.add-comment textarea {
+  width: 100%;
+  height: 60px;
+  padding: 0.5rem;
+  resize: vertical;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+.add-comment button {
+  background: #17a2b8;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.add-comment button:hover {
+  background: #138496;
+}
+.comments-list .comment-card {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: #fafafa;
+}
+
+/* Comment card details */
+.comment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.comment-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #666;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+  font-weight: bold;
+}
+.comment-user-info {
+  display: flex;
+  flex-direction: column;
+}
+.comment-date {
+  font-size: 0.8rem;
+  color: #777;
+}
+.comment-text {
+  margin: 0.5rem 0;
+}
+.comment-actions {
+  display: flex;
+  gap: 10px;
+  font-size: 1.2rem;
+}
+
+.icon {
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+
+.icon:hover {
+  color: #007bff;
+}
+
+.delete-icon {
+  color: red;
+}
+
+.delete-icon:hover {
+  color: darkred;
+}
+
+.replies {
+  margin-left: 2rem;
+  margin-top: 0.5rem;
+}
+.reply-card {
+  display: flex;
+  background: #eee;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+}
+.reply-card .comment-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 0.5rem;
+}
+.reply-content p {
+  margin: 0.25rem 0 0;
+}
+
+/* Writers Section */
+.writers-section {
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #fff;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.writers-section h1 {
+  margin-bottom: 1rem;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 2rem;
+  width: 400px;
+  max-width: 90%;
+  border-radius: 8px;
+  position: relative;
+}
+.close-button {
+  font-size: 1.2rem;
+  font-weight: bold;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  cursor: pointer;
+}
+.modal-content h2 {
+  margin-top: 0;
+}
+.modal-content button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  margin: 0.5rem 0.25rem 0.5rem 0;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.modal-content button:hover {
+  background: #0056b3;
+}
+
+/* Constrain width and center it */
+.articles-layout {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  /* Make featured only slightly bigger than the side column */
+  grid-template-columns: 1.3fr 1fr;
+  gap: 1rem;
+}
+
+/* Featured (left) article card */
+.featured-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* Smaller image height for the featured article */
+.featured-image img {
+  width: 100%;
+  height: 200px;  /* or whatever you prefer */
+  object-fit: cover;
+  display: block;
+}
+
+/* Tighter content spacing */
+.featured-content {
+  padding: 0.75rem;
+}
+.featured-content h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+.featured-content p {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+/* Right-side articles container */
+.side-articles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Side (right) article card */
+.side-card {
+  display: flex;
+  gap: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+/* Smaller images on side cards */
+.side-image img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  display: block;
+  border-radius: 4px;
+}
+
+/* Tighter content on side cards */
+.side-content {
+  padding: 0;
+}
+.side-content h4 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+.side-content p {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+.side-content div {
+  font-size: 0.75rem;
+  color: #555;
+}

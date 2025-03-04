@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Open to Debate | Writers</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script>
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyApOxuZytlqccwyr-DcPE3ZlHHy5oaBJMw",
+      authDomain: "login-e3258.firebaseapp.com",
+      projectId: "login-e3258",
+      storageBucket: "login-e3258.firebasestorage.app",
+      messagingSenderId: "675822917685",
+      appId: "1:675822917685:web:e72a98de5407abd938397c",
+      measurementId: "G-TXYXRHWEPT"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+
+<!-- Sticky Header with Nav -->
+<header class="sticky-header">
+  <div class="logo">Open to Debate</div>
+  <nav class="top-nav">
+    <!-- Left side of navbar -->
+    <div class="nav-left">
+      <a href="index.html">Home</a>
+      <a href="all-debates.html">Debates</a>
+      <a href="all-articles.html">Articles</a>
+      <a href="writers.html" class="active">Writers</a>
+    </div>
+    <!-- Right side of navbar -->
+    <div class="nav-right">
+      <div id="profile-icon" class="profile-icon" onclick="toggleProfileMenu()" style="display: none;">
+        <span id="profile-initials"></span>
+      </div>
+      <div id="profile-menu" class="profile-menu" style="display: none;">
+        <a href="javascript:void(0)" onclick="logout()">Logout</a>
+      </div>
+      <span id="login-btn" onclick="toggleLoginModal()" style="display: none;">Login</span>
+    </div>
+  </nav>
+</header>
+
+<main style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
+  <section class="writers-section">
+    <h1>About Our Writers</h1>
+    <p>
+      Our writers are thoughtful, articulate, and passionate about sparking debate. They help create engaging debates and articles that challenge conventional wisdom and encourage open discussion.
+    </p>
+
+    <!-- Existing writer tools section, visible only if logged in as writer -->
+    <div id="writer-tools" style="display:none; margin-top: 1rem;">
+      <h2>Writer Tools</h2>
+      <button onclick="alert('Open create debate form...')">Create Debate</button>
+      <button onclick="alert('Open create article form...')">Create Article</button>
+    </div>
+
+    <!-- Apply to be a Writer Section -->
+    <section class="apply-writer" style="margin: 2rem 0; text-align: center; padding: 1rem; border: 1px solid #ddd; border-radius: 4px;">
+      <h3 style="margin-bottom: 0.5rem;">Not a Writer Yet?</h3>
+      <p style="color: #555; margin-bottom: 1rem;">If you have a unique perspective and a passion for debate, we'd love to hear from you.</p>
+      <a href="apply-writer.html" style="background: #007bff; color: #fff; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none;">Apply to be a Writer</a>
+    </section>
+  </section>
+</main>
+
+<!-- Login Modal -->
+<div id="login-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" onclick="toggleLoginModal()">×</span>
+    <h2>Login</h2>
+    <form onsubmit="loginWithEmailForm(event)">
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" required>
+
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" required>
+
+      <button type="submit">Login</button>
+    </form>
+    <hr />
+    <button onclick="loginWithGoogle()">Login with Google</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

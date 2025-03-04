@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Open to Debate | Debate</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script>
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyApOxuZytlqccwyr-DcPE3ZlHHy5oaBJMw",
+      authDomain: "login-e3258.firebaseapp.com",
+      projectId: "login-e3258",
+      storageBucket: "login-e3258.firebasestorage.app",
+      messagingSenderId: "675822917685",
+      appId: "1:675822917685:web:e72a98de5407abd938397c",
+      measurementId: "G-TXYXRHWEPT"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+
+<!-- Sticky Header with Nav -->
+<header class="sticky-header">
+  <div class="logo">Open to Debate</div>
+  <nav class="top-nav">
+    <!-- Left side of navbar -->
+    <div class="nav-left">
+      <a href="index.html">Home</a>
+      <a href="all-debates.html">Debates</a>
+      <a href="all-articles.html">Articles</a>
+      <a href="writers.html">Writers</a>
+    </div>
+    <!-- Right side of navbar -->
+    <div class="nav-right">
+      <div id="profile-icon" class="profile-icon" onclick="toggleProfileMenu()" style="display: none;">
+        <span id="profile-initials"></span>
+      </div>
+      <div id="profile-menu" class="profile-menu" style="display: none;">
+        <a href="javascript:void(0)" onclick="logout()">Logout</a>
+      </div>
+      <span id="login-btn" onclick="toggleLoginModal()" style="display: none;">Login</span>
+    </div>
+  </nav>
+</header>
+
+<!-- Hero Section: Debate Title loaded dynamically -->
+<section class="hero-debate">
+  <h1 class="debate-question" style="color: black;">Loading debate...</h1>
+</section>
+
+<!-- Debate Switcher: Link to Article page (will be updated) -->
+<section class="debate-switcher" style="text-align: center; margin: 1rem 0;">
+  <p style="color: black;">
+    <a id="article-btn" href="article.html" style="text-decoration: none; color: black; margin-right: 1rem;">Article</a>
+    |
+    <a href="debate.html" style="text-decoration: none; color: black; margin-left: 1rem;">Debate</a>
+  </p>
+</section>
+
+<main>
+  <!-- Voting Section & Progress Bars -->
+  <section class="debate-section">
+    <div class="vote-container">
+      <h2 style="color: black;">Where do you stand?</h2>
+      <div class="vote-buttons">
+        <button class="yes-btn" onclick="castVote('yes')">Yes</button>
+        <button class="no-btn" onclick="castVote('no')">No</button>
+      </div>
+      <div class="progress-bars">
+        <div class="progress-row">
+          <span>Yes</span>
+          <div class="progress-bar">
+            <div class="progress-fill yes-fill" id="yes-bar" style="width: 0%"></div>
+          </div>
+          <span id="yes-percent">0%</span>
+        </div>
+        <div class="progress-row">
+          <span>No</span>
+          <div class="progress-bar">
+            <div class="progress-fill no-fill" id="no-bar" style="width: 0%"></div>
+          </div>
+          <span id="no-percent">0%</span>
+        </div>
+      </div>
+      <div class="vote-tally" id="vote-tally">Yes: 0 | No: 0</div>
+    </div>
+  </section>
+
+  <!-- Comments Section -->
+  <section class="comments-section">
+    <h3 style="color: black;">Comments</h3>
+    <div class="add-comment">
+      <textarea id="comment-input" placeholder="Share your thoughts..."></textarea>
+      <button onclick="addComment()">Add Comment</button>
+    </div>
+    <div id="comments-list" class="comments-list"></div>
+  </section>
+</main>
+
+<!-- Login Modal -->
+<div id="login-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" onclick="toggleLoginModal()">×</span>
+    <h2>Login</h2>
+    <form onsubmit="loginWithEmailForm(event)">
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" required>
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" required>
+      <button type="submit">Login</button>
+    </form>
+    <hr />
+    <button onclick="loginWithGoogle()">Login with Google</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  window.onload = function() {
+    updateUI();
+    updateVotes();
+    renderComments();
+    loadDebateContent();
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        isLoggedIn = true;
+        currentUserName = user.displayName || user.email;
+        isWriter = (currentUserName === 'writer@mydomain.com');
+      } else {
+        isLoggedIn = false;
+        isWriter = false;
+        currentUserName = '';
+      }
+      updateUI();
+    });
+  };
+</script>
+</body>
+</html>

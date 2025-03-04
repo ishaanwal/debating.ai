@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Debating.ai | Home</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script>
+    // Replace these values with your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyApOxuZytlqccwyr-DcPE3ZlHHy5oaBJMw",
+      authDomain: "login-e3258.firebaseapp.com",
+      projectId: "login-e3258",
+      storageBucket: "login-e3258.firebasestorage.app",
+      messagingSenderId: "675822917685",
+      appId: "1:675822917685:web:e72a98de5407abd938397c",
+      measurementId: "G-TXYXRHWEPT"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <!-- Sticky Header with Nav -->
+  <header class="sticky-header">
+    <div class="logo">Debating.ai</div>
+    <nav class="top-nav">
+      <div class="nav-left">
+        <a href="index.html" class="active">Home</a>
+        <a href="all-debates.html">Debates</a>
+        <a href="all-articles.html">Articles</a>
+        <a href="writers.html">Writers</a>
+      </div>
+      <div class="nav-right">
+        <div id="profile-icon" class="profile-icon" onclick="toggleProfileMenu()" style="display: none;">
+          <span id="profile-initials"></span>
+        </div>
+        <div id="profile-menu" class="profile-menu" style="display: none;">
+          <a href="javascript:void(0)" onclick="logout()">Logout</a>
+        </div>
+        <span id="login-btn" onclick="toggleLoginModal()" style="display: none;">Login</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-home" style="background: none; text-align: center; margin: 2rem 0;">
+    <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Join the Conversation</h1>
+    <p style="color: #555; margin-bottom: 1.5rem;">
+      Explore the ethical dimensions of debates through structured questions and community engagement.
+    </p>
+    <div style="display: inline-block; position: relative;">
+      <input type="text" placeholder="Search debates..." style="padding: 0.5rem 1rem; border: 1px solid #ccc; border-radius: 4px; width: 250px;">
+      <button style="position: absolute; right: 0; top: 0; bottom: 0; background: #007bff; border: none; color: #fff; padding: 0.5rem 1rem; border-radius: 0 4px 4px 0; cursor: pointer;">Search</button>
+    </div>
+  </section>
+
+  <!-- Debates Carousel Section -->
+  <section class="debates-carousel-section" style="margin: 2rem auto; max-width: 100%;">
+    <h2 style="font-size: 1.5rem; text-align: center; margin-bottom: 1rem;">Latest Debates</h2>
+    <div class="debate-carousel-container" style="position: relative; overflow: hidden; width: 100%;">
+      <button id="debate-prev" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 1; background: rgba(0,0,0,0.5); color: #fff; border: none; font-size: 1.5rem;">&#9664;</button>
+      <div id="debate-cards" class="debate-carousel" style="display: flex; gap: 1rem; transition: transform 0.5s ease; padding: 0 3rem;">
+        <!-- Debate cards loaded dynamically via JS -->
+      </div>
+      <button id="debate-next" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 1; background: rgba(0,0,0,0.5); color: #fff; border: none; font-size: 1.5rem;">&#9654;</button>
+    </div>
+  </section>
+
+  <!-- Apply to be a Writer Section -->
+  <section class="apply-writer" style="margin: 2rem auto; text-align: center; padding: 1rem; border: 1px solid #ddd; border-radius: 4px; max-width: 600px;">
+    <h3 style="margin-bottom: 0.5rem;">Want to join as a Writer?</h3>
+    <p style="color: #555; margin-bottom: 1rem;">Share your unique perspective and help us spark debates. Apply now!</p>
+    <a href="apply-writer.html" style="background: #007bff; color: #fff; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none;">Apply to be a Writer</a>
+  </section>
+
+  <!-- Latest Articles Section -->
+  <section class="latest-articles" style="margin: 2rem auto; text-align: center; padding: 1rem; border: 1px solid #ddd; border-radius: 4px; max-width: 1200px;">
+    <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Latest Articles</h2>
+    <div id="article-cards" style="display: flex; gap: 1rem; flex-wrap: wrap;"></div>
+  </section>
+
+  <!-- AI Ethics & Policy Features Section -->
+  <section class="features-section" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem; text-align: center;">
+    <h2 style="font-size: 2rem; margin-bottom: 2rem;">Engage in Thought-Provoking Debates on AI Ethics and Policy</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; align-items: flex-start;">
+      <!-- Feature 1 -->
+      <div style="flex: 1; min-width: 250px; max-width: 350px; text-align: left;">
+        <div style="font-size: 48px; margin-bottom: 1rem;">💡</div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Gain Insights from Leading Experts</h3>
+        <p style="color: #555; line-height: 1.5;">
+          Learn from professionals shaping the future of AI and policy.
+          Discover new perspectives on regulation, safety, and emerging trends.
+        </p>
+      </div>
+      <!-- Feature 2 -->
+      <div style="flex: 1; min-width: 250px; max-width: 350px; text-align: left;">
+        <div style="font-size: 48px; margin-bottom: 1rem;">🤝</div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Participate in a Vibrant Community</h3>
+        <p style="color: #555; line-height: 1.5;">
+          Join AI enthusiasts and experts in open discussions.
+          Share your thoughts, experiences, and concerns about the evolving AI landscape.
+        </p>
+      </div>
+      <!-- Feature 3 -->
+      <div style="flex: 1; min-width: 250px; max-width: 350px; text-align: left;">
+        <div style="font-size: 48px; margin-bottom: 1rem;">⚙️</div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Explore Interactive Features</h3>
+        <p style="color: #555; line-height: 1.5;">
+          Engage in dynamic debates with polls, comments, and more.
+          Our platform fosters structured conversations on AI ethics and policy.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer" style="background: #f8f9fa; padding: 2rem 1rem; margin-top: 2rem;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 2rem;">
+      <div style="flex: 1; min-width: 200px;">
+        <h3>Debating.ai</h3>
+        <p>© 2025 Debating.ai. All rights reserved.</p>
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <h4>Site Links</h4>
+        <ul style="list-style: none; padding: 0;">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="all-debates.html">Debates</a></li>
+          <li><a href="all-articles.html">Articles</a></li>
+          <li><a href="writers.html">Writers</a></li>
+        </ul>
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <h4>Contact</h4>
+        <p>Email: contact@debating.ai</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="toggleLoginModal()">×</span>
+      <h2>Login</h2>
+      <form onsubmit="loginWithEmailForm(event)">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" required>
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" required>
+        <button type="submit">Login</button>
+      </form>
+      <hr />
+      <button onclick="loginWithGoogle()">Login with Google</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

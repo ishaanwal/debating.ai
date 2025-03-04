@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Apply to be a Writer | Open to Debate</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script>
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyApOxuZytlqccwyr-DcPE3ZlHHy5oaBJMw",
+      authDomain: "login-e3258.firebaseapp.com",
+      projectId: "login-e3258",
+      storageBucket: "login-e3258.firebasestorage.app",
+      messagingSenderId: "675822917685",
+      appId: "1:675822917685:web:e72a98de5407abd938397c",
+      measurementId: "G-TXYXRHWEPT"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+
+<!-- Sticky Header with Nav -->
+<header class="sticky-header">
+  <div class="logo">Open to Debate</div>
+  <nav class="top-nav">
+    <!-- Left side of navbar -->
+    <div class="nav-left">
+      <a href="index.html">Home</a>
+      <a href="all-debates.html">Debates</a>
+      <a href="all-articles.html">Articles</a>
+      <a href="writers.html">Writers</a>
+    </div>
+    <!-- Right side of navbar -->
+    <div class="nav-right">
+      <div id="profile-icon" class="profile-icon" onclick="toggleProfileMenu()" style="display: none;">
+        <span id="profile-initials"></span>
+      </div>
+      <div id="profile-menu" class="profile-menu" style="display: none;">
+        <a href="javascript:void(0)" onclick="logout()">Logout</a>
+      </div>
+      <span id="login-btn" onclick="toggleLoginModal()" style="display: none;">Login</span>
+    </div>
+  </nav>
+</header>
+
+<main style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
+  <section class="apply-writer-info">
+    <h1>Apply to be a Writer</h1>
+    <p>
+      We’re looking for articulate, passionate voices who can spark thoughtful debate. As a writer for Open to Debate you’ll have the opportunity to:
+    </p>
+    <ul>
+      <li>Create engaging debates and articles.</li>
+      <li>Reach a wide audience of thoughtful readers.</li>
+      <li>Gain exposure and build your portfolio.</li>
+      <li>Enjoy exclusive writer tools and editorial support.</li>
+    </ul>
+    <p>
+      If you believe you have what it takes, please send an email to <a href="mailto:apply@opentodebate.com">apply@opentodebate.com</a> with a brief introduction, your writing samples, and why you’d be a great fit.
+    </p>
+    <p>
+      We look forward to hearing from you and potentially welcoming you to our vibrant community of debaters.
+    </p>
+    <a href="writers.html" style="display: inline-block; margin-top: 1rem; background: #007bff; color: #fff; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none;">Back to Writers</a>
+  </section>
+</main>
+
+<!-- Login Modal -->
+<div id="login-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" onclick="toggleLoginModal()">×</span>
+    <h2>Login</h2>
+    <form onsubmit="loginWithEmailForm(event)">
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" required>
+
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" required>
+
+      <button type="submit">Login</button>
+    </form>
+    <hr />
+    <button onclick="loginWithGoogle()">Login with Google</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
