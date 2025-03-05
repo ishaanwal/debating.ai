@@ -1,17 +1,17 @@
-<!-- Updated all-debates.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>All Debates | Open to Debate</title>
+  <title>All Debates | Debating.ai</title>
   <link rel="stylesheet" href="style.css" />
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <!-- Add Firestore SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script>
-    // Firebase config (same as other pages)
     const firebaseConfig = {
       apiKey: "AIzaSyApOxuZytlqccwyr-DcPE3ZlHHy5oaBJMw",
       authDomain: "login-e3258.firebaseapp.com",
@@ -25,34 +25,25 @@
   </script>
 </head>
 <body>
-  <!-- Sticky Header with Nav -->
-  <header class="sticky-header">
-    <div class="logo">Open to Debate</div>
-    <nav class="top-nav">
-      <div class="nav-left">
-        <a href="index.html">Home</a>
-        <a href="all-debates.html" class="active">Debates</a>
-        <a href="all-articles.html">Articles</a>
-        <a href="writers.html">Writers</a>
-      </div>
-      <div class="nav-right">
-        <div id="profile-icon" class="profile-icon" onclick="toggleProfileMenu()" style="display: none;">
-          <span id="profile-initials"></span>
-        </div>
-        <div id="profile-menu" class="profile-menu" style="display: none;">
-          <a href="javascript:void(0)" onclick="logout()">Logout</a>
-        </div>
-        <span id="login-btn" onclick="toggleLoginModal()" style="display: none;">Login</span>
-      </div>
-    </nav>
-  </header>
+  <!-- Navbar (identical to index.html) -->
+  <!-- Placeholder to load the centralized navbar -->
+<div id="navbar-placeholder"></div>
+<script>
+  fetch('navbar.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('navbar-placeholder').innerHTML = data;
+    });
+</script>
 
-  <main style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+
+  <!-- Main content: Grid of debates -->
+  <main style="margin: 2rem auto; padding: 0 1rem;">
     <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">All Debates</h2>
-    <div id="debate-cards" style="display: flex; gap: 1rem; flex-wrap: wrap;"></div>
+    <div id="debate-cards" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;"></div>
   </main>
 
-  <!-- Login Modal -->
+  <!-- Login Modal (same as index.html) -->
   <div id="login-modal" class="modal">
     <div class="modal-content">
       <span class="close-button" onclick="toggleLoginModal()">×</span>
@@ -71,10 +62,9 @@
 
   <script src="script.js"></script>
   <script>
-    // For the All Debates page, only fetch debates from Notion.
+    // On page load, update UI and fetch debates in grid format.
     window.onload = function() {
       updateUI();
-      fetchDebatesFromNotion();
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           isLoggedIn = true;
@@ -87,7 +77,73 @@
         }
         updateUI();
       });
+      fetchDebatesFromNotion().then(() => {
+        displayDebatesAsGrid(debatesData);
+      });
     };
+
+    // Render debates as an even grid (4 per row)
+    // Immediately disable carousel behavior on this page.
+  pauseCarousel = true; // This stops the continuous scroll animation
+
+  // Render debates as a static grid (4 per row)
+  function displayDebatesAsGrid(debates) {
+    const container = document.getElementById('debate-cards');
+    if (!container) return;
+    container.innerHTML = '';
+
+    debates.forEach(page => {
+      const title = page.properties["TD:metadata"]?.rich_text?.[0]?.plain_text || 'No Title';
+      const image = page.properties.Cover?.files?.[0]?.file?.url || "https://via.placeholder.com/80";
+
+      const card = document.createElement('div');
+      card.className = 'debate-card';
+      card.style.cssText = `
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 0;
+      `;
+
+      card.innerHTML = `
+        <div style="height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+          <img src="${image}" alt="Debate Thumbnail" style="width: 100%; height: 100%; object-fit: cover;" />
+        </div>
+        <div style="padding: 1rem;">
+          <h3>${title}</h3>
+        </div>
+      `;
+
+      card.onclick = () => {
+        window.location.href = `debate.html?debateId=${page.id}`;
+      };
+      container.appendChild(card);
+    });
+  }
+
+  // In your onload handler, fetch debates and render using the new function:
+  window.onload = function() {
+    updateUI();
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        isLoggedIn = true;
+        currentUserName = user.displayName || user.email;
+        isWriter = (currentUserName === 'writer@mydomain.com');
+      } else {
+        isLoggedIn = false;
+        isWriter = false;
+        currentUserName = '';
+      }
+      updateUI();
+    });
+
+    // Fetch debates and then render them as a grid instead of a carousel.
+    fetchDebatesFromNotion().then(() => {
+      displayDebatesAsGrid(debatesData);
+    });
+
+    }
   </script>
 </body>
 </html>

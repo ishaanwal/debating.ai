@@ -9,6 +9,8 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <!-- Add Firestore SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script>
     // Your Firebase config
     const firebaseConfig = {
@@ -26,28 +28,14 @@
 <body>
 
 <!-- Sticky Header with Nav -->
-<header class="sticky-header">
-  <div class="logo">Open to Debate</div>
-  <nav class="top-nav">
-    <!-- Left side of navbar -->
-    <div class="nav-left">
-      <a href="index.html">Home</a>
-      <a href="all-debates.html">Debates</a>
-      <a href="all-articles.html">Articles</a>
-      <a href="writers.html" class="active">Writers</a>
-    </div>
-    <!-- Right side of navbar -->
-    <div class="nav-right">
-      <div id="profile-icon" class="profile-icon" onclick="toggleProfileMenu()" style="display: none;">
-        <span id="profile-initials"></span>
-      </div>
-      <div id="profile-menu" class="profile-menu" style="display: none;">
-        <a href="javascript:void(0)" onclick="logout()">Logout</a>
-      </div>
-      <span id="login-btn" onclick="toggleLoginModal()" style="display: none;">Login</span>
-    </div>
-  </nav>
-</header>
+<div id="navbar-placeholder"></div>
+<script>
+  fetch('navbar.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('navbar-placeholder').innerHTML = data;
+    });
+</script>
 
 <main style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
   <section class="writers-section">

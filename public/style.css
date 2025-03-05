@@ -7,7 +7,7 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
-  background: #f8f9fa;
+  background: #ffffff;
 }
 
 /* Sticky Header with Nav */
@@ -92,6 +92,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 8rem 0;
 }
 .hero-home h1 {
   color: black;
@@ -110,16 +111,37 @@ body {
   text-align: center;
   padding: 1rem;
 }
-.hero-article {
-  background: url('https://via.placeholder.com/1500x300/eee/000?text=Article+Hero') no-repeat center center/cover;
-  min-height: 30vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 1rem;
+.article-header {
+  width: 70%;
+  margin: 2rem auto;
+  text-align: left;
 }
+
+.article-header h1 {
+  font-size: 3em;          /* Largest heading */
+  margin-bottom: 0.5em;
+  position: relative;
+  padding-bottom: 0.2em;
+  display: inline-block;
+}
+
+.article-header h1::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 2px;             /* Fine line under the heading */
+  background: #ccc;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.article-meta {
+  font-size: 0.8em;        /* Smaller text for author & date */
+  color: #777;
+  margin-top: 0.5em;
+}
+
 
 /* Home Page Debate List */
 .debate-list {
@@ -143,6 +165,233 @@ body {
 }
 .debate-list a:hover {
   text-decoration: underline;
+}
+
+/* 1) Larger container with overflow hidden */
+/* Make the debates section span the full width */
+.debates-carousel-section {
+  width: 100%;
+  margin: 3rem 0;
+  position: relative;
+}
+
+/* Carousel container takes full width */
+.debate-carousel-container {
+  position: relative;
+  width: 100%;
+  /* Let the container auto-size to fit the tall card */
+  height: auto;
+  /* Hide horizontal overflow so the scroll animation is smooth,
+     but allow vertical space for the entire card: */
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+
+/* The carousel itself will be wider since we duplicate items */
+.debate-carousel {
+  display: flex;
+  gap: 1.5rem;
+  width: 200%; /* Duplicate items for infinite scroll */
+  animation: scrollLeft 20s linear infinite;
+}
+
+
+/* Style for card content */
+.debate-card-content {
+  padding: 1rem;
+}
+.debate-card-content h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+.debate-card-content p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Keyframes for infinite scroll */
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.debates-heading {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+
+/* 2) Smooth infinite scrolling on .debate-carousel */
+.debate-card {
+  flex: 0 0 15%;          /* or whatever width you like */
+  aspect-ratio: 16 / 9;   /* pick an aspect ratio */
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  position: relative;     /* so the image can fill it */
+}
+
+.debate-card-image {
+  width: 100%;
+  height: 100%;
+}
+
+.debate-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;      /* ensures image covers entire card */
+}
+
+
+.debate-card-image {
+  /* remove height: 350px; */
+  width: 100%;
+  overflow: hidden;
+}
+
+.debate-card-image img {
+  width: 100%;
+  height: auto;    /* let the image grow naturally */
+  object-fit: cover;
+}
+
+.featured-articles-section {
+  max-width: 1100px;
+  width: 100%;        /* Ensures it uses the full 1100px max */
+  margin: 2rem auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+
+
+
+.article-grid-card {
+  background: #fff;
+  border-radius: 8px;            /* rounded edges */
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);  /* stronger shadow */
+  transition: transform 0.2s ease;
+}
+
+.article-grid-card:hover {
+  transform: translateY(-4px);
+}
+
+
+
+.debate-card-content {
+  /* The snippet now has enough space below the image */
+  flex: 1; /* fills remaining space if you want a flexible layout */
+  padding: 1rem;
+}
+
+
+/* Features Section Container */
+.features-section {
+  background-color: #f9f9f9; /* Light background to distinguish */
+  padding: 3rem 0;          /* Top/bottom space */
+}
+
+/* Centered, consistent width container */
+.features-container {
+  max-width: 1100px;  /* Same width as your articles section */
+  margin: 0 auto;     /* Center horizontally */
+  padding: 0 1rem;    /* Small side padding */
+  text-align: center;
+}
+
+.features-container h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Grid for features */
+.features-grid {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: stretch; /* Key: stretches each card to match the tallest */
+  flex-wrap: nowrap;    /* Prevent wrapping so they stay in one row */
+}
+
+.feature-item {
+  flex: 0 0 calc(33.333% - 2rem); /* 3 columns minus the gap space */
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  text-align: left;
+  padding: 1.5rem;
+
+  display: flex;          /* Let the item stretch vertically */
+  flex-direction: column; /* Stack its contents top to bottom */
+  justify-content: flex-start;
+}
+
+
+/* Icon, title, and description styles */
+.feature-icon {
+  font-size: 48px;
+  margin-bottom: 1rem;
+}
+
+.feature-title {
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.feature-desc {
+  color: #555;
+  line-height: 1.5;
+}
+
+.section-title {
+  font-size: 2rem;        /* matches the size of "Engage in Thought-Provoking..." */
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 600;       /* optional: add a bit of weight */
+}
+
+
+
+
+
+/* 4) Make the debate nav buttons optional or style them */
+.debate-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+#debate-prev {
+  left: 0;
+}
+#debate-next {
+  right: 0;
+}
+
+/* 5) Keyframes for infinite scroll: shift half the container width left */
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 /* Debate Section */
@@ -229,13 +478,33 @@ body {
 
 /* Article Section */
 .article-section {
-  max-width: 800px;
-  margin: 2rem auto;
-  background: #fff;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  max-width: 70%;
+  margin: 0 auto;
+  background: none;
+  border: none;
+  padding: 1rem; /* or whatever minimal padding you prefer */
 }
+
+.article-section p {
+  line-height: 1.8;
+  margin: 1em 0;
+}
+.article-section h1 {
+  font-size: 2em;
+  margin: 1.5em 0 0.5em;
+}
+.article-section h2 {
+  font-size: 1.5em;
+  margin: 1em 0 0.5em;
+}
+.article-section h3 {
+  font-size: 1.25em;
+  margin: 0.75em 0 0.5em;
+}
+.article-section li {
+  margin-bottom: 0.5em;
+}
+
 
 /* Comments */
 .comments-section {
@@ -410,15 +679,7 @@ body {
   background: #0056b3;
 }
 
-/* Constrain width and center it */
-.articles-layout {
-  max-width: 900px;
-  margin: 0 auto;
-  display: grid;
-  /* Make featured only slightly bigger than the side column */
-  grid-template-columns: 1.3fr 1fr;
-  gap: 1rem;
-}
+
 
 /* Featured (left) article card */
 .featured-card {
@@ -428,6 +689,11 @@ body {
   border-radius: 4px;
   cursor: pointer;
   overflow: hidden;
+}
+#article-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
 }
 
 /* Smaller image height for the featured article */
@@ -497,3 +763,173 @@ body {
   font-size: 0.75rem;
   color: #555;
 }
+
+.modal-content {
+  background-color: #fff;
+  margin: 8% auto;
+  padding: 2rem;
+  width: 400px;
+  max-width: 90%;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-content h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.modal-content button {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.modal-content button[type="submit"] {
+  background: #007bff;
+  color: #fff;
+}
+
+.modal-content button:hover {
+  opacity: 0.9;
+}
+
+.close-button {
+  font-size: 1.5rem;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.close-button:hover {
+  color: #000;
+}
+
+/* Increase featured image height */
+.featured-image img {
+  width: 100%;
+  height: 300px; /* bigger vertical space */
+  object-fit: cover;
+}
+
+/* Increase side image dimensions */
+.side-image img {
+  width: 120px; /* or more */
+  height: 120px;
+  object-fit: cover;
+}
+
+/* Slightly bigger text for article cards */
+.featured-content h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+}
+.featured-content p {
+  font-size: 1rem;
+}
+
+.side-content h4 {
+  font-size: 1.1rem;
+}
+.side-content p {
+  font-size: 1rem;
+}
+
+/* Two-column container styles (optional fine-tuning) */
+main > div {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+/* Fixed comment bar at bottom */
+.fixed-comment-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  z-index: 9999;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+/* Rounded text input in the fixed bar */
+.fixed-comment-bar textarea {
+  flex: 1;
+  resize: none;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  outline: none;
+  min-height: 2.5rem;
+}
+
+/* "Send" button styling */
+.fixed-comment-bar button {
+  background: #17a2b8;
+  border: none;
+  border-radius: 20px;
+  padding: 0.75rem 1.5rem;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.fixed-comment-bar button:hover {
+  background: #138496;
+}
+
+/* New hero text container styling */
+/* New hero text container styling with gray background and blur effect */
+.hero-text-container {
+  max-width: 1100px;  /* match your other sections */
+  margin: 0 auto;
+  background: rgba(128, 128, 128, 0.8);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.hero-text-container h1,
+.hero-text-container p {
+  color: #fff;
+}
+
+.hero-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+

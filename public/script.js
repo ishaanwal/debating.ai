@@ -3,7 +3,10 @@
 // -----------------------------
 let isLoggedIn = false;
 let isWriter = false;
-let currentUserName = ''; // store displayName or email
+let currentUserName = '';
+// Initialize Firestore (Firebase is already initialized in your HTML)
+const db = firebase.firestore();
+// store displayName or email
 let votes = { yes: 0, no: 0 };
 let comments = [];
 
@@ -60,6 +63,38 @@ function loginWithEmailForm(event) {
     .catch((error) => {
       console.error("Email login error:", error);
       alert("Email login failed: " + error.message);
+    });
+}
+
+function toggleSignupModal() {
+  const modal = document.getElementById('signup-modal');
+  if (!modal) return;
+  modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
+}
+
+function signupWithEmailForm(event) {
+  event.preventDefault();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value.trim();
+
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then((result) => {
+      isLoggedIn = true;
+      currentUserName = result.user.displayName || result.user.email;
+      // Create user profile in Firestore
+      return db.collection('users').doc(result.user.uid).set({
+        email: email,
+        iconColor: getRandomColor()
+      });
+    })
+    .then(() => {
+      toggleSignupModal();
+      updateUI();
+      alert("Signed up and logged in successfully!");
+    })
+    .catch((error) => {
+      console.error("Signup error:", error);
+      alert("Signup failed: " + error.message);
     });
 }
 
@@ -141,12 +176,14 @@ async function fetchDebatesFromNotion() {
     console.log("Filtered debates:", debates);
 
     // Store the debates in a global array
-    // Inside fetchDebatesFromNotion()
-debatesData = debates;
-preloadDebateImages();  // Preload images before rendering
-renderDebates();
+    debatesData = debates;
+    preloadDebateImages();  // Preload images before rendering
+    renderDebates();
+  } catch (err) {
+    console.error("Error fetching debates from Notion:", err);
+  }
+}
 
-// New helper function to preload images:
 function preloadDebateImages() {
   debatesData.forEach(page => {
     const image = page.properties.Cover?.files?.[0]?.file?.url;
@@ -157,80 +194,73 @@ function preloadDebateImages() {
   });
 }
 
-  } catch (err) {
-    console.error("Error fetching debates from Notion:", err);
-  }
-}
-
-// This function renders the first 4 debates from the debatesData array
+// Render all debate cards and duplicate them for infinite scrolling
 function renderDebates() {
   const container = document.getElementById('debate-cards');
   if (!container) return;
   container.innerHTML = '';
 
-  // Determine how many debates to display (up to 4)
-  const count = Math.min(4, debatesData.length);
-  for (let i = 0; i < count; i++) {
-    const page = debatesData[i];
-    const title = page.properties["TD:metadata"]?.rich_text?.[0]?.plain_text || 'No Title';
-    const image = page.properties.Cover?.files?.[0]?.file?.url || "https://via.placeholder.com/80";
-
-    const card = document.createElement('div');
-    card.className = 'debate-card';
-    card.style.cssText = `
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      flex: 1;
-      min-width: 250px;
-      cursor: pointer;
-      margin: 0 0.5rem;
-    `;
-    card.innerHTML = `
-      <div style="height: 150px; background: #eee; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-        <img src="${image}" alt="Debate Thumbnail" style="max-width: 100%; max-height: 100%; object-fit: cover;" />
-      </div>
-      <div style="padding: 1rem;">
-        <h3>${title}</h3>
-      </div>
-    `;
-    card.onclick = () => {
-      window.location.href = `debate.html?debateId=${page.id}`;
-    };
+  // Render original set
+  debatesData.forEach(page => {
+    const card = createDebateCard(page);
     container.appendChild(card);
+  });
+
+  // Duplicate the same set for a seamless loop
+  debatesData.forEach(page => {
+    const card = createDebateCard(page);
+    container.appendChild(card);
+  });
+}
+
+function createDebateCard(page) {
+  const image = page.properties.Cover?.files?.[0]?.file?.url || "https://via.placeholder.com/80";
+  const card = document.createElement('div');
+  card.className = 'debate-card';
+  card.innerHTML = `
+    <div class="debate-card-image">
+      <img src="${image}" alt="Debate Thumbnail" style="width: 100%; height: 100%; object-fit: cover;" />
+    </div>
+  `;
+  // Pause carousel on hover
+  card.onmouseenter = () => { pauseCarousel = true; };
+  card.onmouseleave = () => { pauseCarousel = false; };
+
+  card.onclick = () => {
+    window.location.href = `debate.html?debateId=${page.id}`;
+  };
+  return card;
+}
+
+
+// -----------------------------
+// Continuous Carousel for Debates
+// -----------------------------
+// Remove any redundant step-based functions and use continuous scrolling
+let lastTimestamp = null;
+let scrollOffset = 0;
+const scrollSpeed = 50;
+let pauseCarousel = false;  // NEW
+
+function continuousScroll(timestamp) {
+  if (!lastTimestamp) lastTimestamp = timestamp;
+  const delta = timestamp - lastTimestamp;
+  lastTimestamp = timestamp;
+
+  if (!pauseCarousel) {
+    scrollOffset += (scrollSpeed * delta) / 1000;
+    const container = document.getElementById('debate-cards');
+    if (container) {
+      const resetPoint = container.scrollWidth / 2;
+      if (scrollOffset >= resetPoint) {
+        scrollOffset -= resetPoint;
+      }
+      container.style.transform = `translateX(-${scrollOffset}px)`;
+    }
   }
+  requestAnimationFrame(continuousScroll);
 }
-
-
-// Rotates the debates array forward: moves the first debate to the end and re-renders
-function rotateDebatesSmooth() {
-  const container = document.getElementById('debate-cards');
-  if (!container || container.children.length <= 1) return;
-
-  const card = container.querySelector('.debate-card');
-  const cardStyle = window.getComputedStyle(card);
-  const cardWidth = card.offsetWidth + parseFloat(cardStyle.marginRight);
-
-  container.style.transition = 'transform 0.5s ease';
-  container.style.transform = `translateX(-${cardWidth}px)`;
-
-  setTimeout(() => {
-    container.style.transition = 'none';
-    container.style.transform = 'translateX(0)';
-    // Move the first DOM node to the end without re-rendering
-    container.appendChild(container.firstElementChild);
-  }, 500);
-}
-
-
-
-// Rotates the debates array backward: moves the last debate to the front and re-renders
-function rotateDebatesBackward() {
-  if (debatesData.length <= 1) return;
-  const last = debatesData.pop();
-  debatesData.unshift(last);
-  renderDebates();
-}
+requestAnimationFrame(continuousScroll);
 
 // -----------------------------
 // Articles (Notion) Functions
@@ -251,80 +281,31 @@ function displayArticlesFromNotion(results) {
   if (!container) return;
   container.innerHTML = '';
 
-  // For the homepage, let's get up to 4 articles
-  if (window.location.pathname.endsWith("index.html") || window.location.pathname === "/") {
-    results = results.slice(0, 4);
-  }
-
-  // Create a wrapper for our layout
-  const layoutWrapper = document.createElement('div');
-  layoutWrapper.className = 'articles-layout'; // We'll style this in CSS
-
-  // Create featured container (left side)
-  const featuredWrapper = document.createElement('div');
-  featuredWrapper.className = 'featured-article';
-
-  // Create side container (right side)
-  const sideWrapper = document.createElement('div');
-  sideWrapper.className = 'side-articles';
-
-  // If there's at least one article, use the first as "featured"
-  if (results.length > 0) {
-    const featuredPage = results[0];
-    featuredWrapper.innerHTML = createArticleHTML(featuredPage, true);
-  }
-
-  // The next 3 articles go on the right side
-  for (let i = 1; i < results.length && i < 4; i++) {
-    const sidePage = results[i];
-    sideWrapper.innerHTML += createArticleHTML(sidePage, false);
-  }
-
-  // Append the featured and side articles into our layout wrapper
-  layoutWrapper.appendChild(featuredWrapper);
-  layoutWrapper.appendChild(sideWrapper);
-
-  // Finally, add the layout to the container
-  container.appendChild(layoutWrapper);
+  results.forEach(page => {
+    const card = document.createElement('div');
+    card.className = 'article-grid-card';
+    card.innerHTML = createArticleGridHTML(page);
+    container.appendChild(card);
+  });
 }
 
-// Helper to return HTML for either the featured or side article
-function createArticleHTML(page, isFeatured) {
+
+// New function for uniform article cards in the grid
+function createArticleGridHTML(page) {
   const title = page.properties.data?.title?.[0]?.plain_text || 'No Title';
-  const snippet = page.properties.Snippet?.rich_text?.[0]?.plain_text || 'No snippet available.';
+  const snippet = page.properties.Snippet?.rich_text?.[0]?.plain_text || 'No snippet.';
   const image = page.properties.Cover?.files?.[0]?.file?.url || "https://via.placeholder.com/80";
   const author = page.properties.Author?.select?.name || 'Unknown';
   const date = page.properties.Date?.date?.start || 'Unknown Date';
 
-  if (isFeatured) {
-    // Larger featured article styling
-    return `
-      <div class="featured-card" onclick="window.location.href='article.html?articleId=${page.id}'">
-        <div class="featured-image">
-          <img src="${image}" alt="Article Thumbnail"/>
-        </div>
-        <div class="featured-content">
-          <h3>${title}</h3>
-          <p>${snippet}</p>
-          <div><strong>${author}</strong><span> | ${date}</span></div>
-        </div>
-      </div>
-    `;
-  } else {
-    // Smaller side article styling
-    return `
-      <div class="side-card" onclick="window.location.href='article.html?articleId=${page.id}'">
-        <div class="side-image">
-          <img src="${image}" alt="Article Thumbnail"/>
-        </div>
-        <div class="side-content">
-          <h4>${title}</h4>
-          <p>${snippet}</p>
-          <div><strong>${author}</strong><span> | ${date}</span></div>
-        </div>
-      </div>
-    `;
-  }
+  return `
+    <div onclick="window.location.href='article.html?articleId=${page.id}'" style="cursor: pointer;">
+      <img src="${image}" alt="Article Image" style="width:100%; height:200px; object-fit:cover; border-radius:4px;">
+      <h3 style="margin:0.5rem 0 0.25rem;">${title}</h3>
+      <p style="margin:0 0 0.25rem;">${snippet}</p>
+      <small>${author} | ${date}</small>
+    </div>
+  `;
 }
 
 
@@ -347,6 +328,15 @@ async function loadArticleContent() {
       articleTitleElem.textContent = title;
     }
 
+    const authorElem = document.querySelector('.article-author');
+    const dateElem = document.querySelector('.article-date');
+    if (authorElem) {
+      authorElem.textContent = pageData.properties.Author?.select?.name || 'Unknown Author';
+    }
+    if (dateElem) {
+      dateElem.textContent = pageData.properties.Date?.date?.start || 'Unknown Date';
+    }
+
     const response = await fetch(`/api/blocks/${articleId}/children?page_size=100`);
     const data = await response.json();
     console.log("Article content blocks:", data);
@@ -358,40 +348,28 @@ async function loadArticleContent() {
         let html = '';
         switch (block.type) {
           case 'paragraph':
-            {
-              const text = block.paragraph.rich_text.map(rt => rt.plain_text).join('');
-              html = `<p>${text}</p>`;
-            }
+            const text = block.paragraph.rich_text.map(rt => rt.plain_text).join('');
+            html = `<p>${text}</p>`;
             break;
           case 'heading_1':
-            {
-              const text = block.heading_1.rich_text.map(rt => rt.plain_text).join('');
-              html = `<h1>${text}</h1>`;
-            }
+            const text1 = block.heading_1.rich_text.map(rt => rt.plain_text).join('');
+            html = `<h1>${text1}</h1>`;
             break;
           case 'heading_2':
-            {
-              const text = block.heading_2.rich_text.map(rt => rt.plain_text).join('');
-              html = `<h2>${text}</h2>`;
-            }
+            const text2 = block.heading_2.rich_text.map(rt => rt.plain_text).join('');
+            html = `<h2>${text2}</h2>`;
             break;
           case 'heading_3':
-            {
-              const text = block.heading_3.rich_text.map(rt => rt.plain_text).join('');
-              html = `<h3>${text}</h3>`;
-            }
+            const text3 = block.heading_3.rich_text.map(rt => rt.plain_text).join('');
+            html = `<h3>${text3}</h3>`;
             break;
           case 'bulleted_list_item':
-            {
-              const text = block.bulleted_list_item.rich_text.map(rt => rt.plain_text).join('');
-              html = `<li>${text}</li>`;
-            }
+            const textList = block.bulleted_list_item.rich_text.map(rt => rt.plain_text).join('');
+            html = `<li>${textList}</li>`;
             break;
           case 'numbered_list_item':
-            {
-              const text = block.numbered_list_item.rich_text.map(rt => rt.plain_text).join('');
-              html = `<li>${text}</li>`;
-            }
+            const textNum = block.numbered_list_item.rich_text.map(rt => rt.plain_text).join('');
+            html = `<li>${textNum}</li>`;
             break;
           default:
             console.log("Unhandled block type:", block.type, block);
@@ -406,15 +384,26 @@ async function loadArticleContent() {
 }
 
 // -----------------------------
-// Comments & Voting Functions (Optional)
+// Comments & Voting Functions
 // -----------------------------
-function castVote(side) {
+function castVote(side, debateId) {
   if (!isLoggedIn) {
     alert("You must be logged in to vote.");
     return;
   }
-  votes[side]++;
-  updateVotes();
+  const voteRef = db.collection('votes').doc(debateId);
+  voteRef.get().then(doc => {
+    const data = doc.data() || { yes: 0, no: 0, voters: {} };
+    if (data.voters && data.voters[currentUserName]) {
+      alert("You've already voted.");
+      return;
+    }
+    const update = { voters: { ...data.voters, [currentUserName]: side } };
+    update[side] = firebase.firestore.FieldValue.increment(1);
+    voteRef.set(update, { merge: true });
+  }).catch(error => {
+    console.error("Error casting vote:", error);
+  });
 }
 
 function updateVotes() {
@@ -450,131 +439,93 @@ function addComment() {
   if (!input) return;
   const text = input.value.trim();
   if (!text) return;
-  const newComment = {
+
+  db.collection('comments').add({
     text: text,
-    userName: currentUserName || 'Anonymous',
-    date: new Date().toLocaleString(),
+    userName: currentUserName,
+    date: firebase.firestore.FieldValue.serverTimestamp(),
     likes: 0,
     dislikes: 0,
+    likedBy: [],
+    dislikedBy: [],
     replies: []
-  };
-  comments.unshift(newComment);
-  input.value = '';
-  renderComments();
-}
-
-function renderComments() {
-  const list = document.getElementById('comments-list');
-  if (!list) return;
-  list.innerHTML = '';
-  comments.forEach((comment, index) => {
-    const card = document.createElement('div');
-    card.className = 'comment-card';
-    const initials = getInitials(comment.userName);
-    card.innerHTML = `
-      <div class="comment-header">
-        <div class="comment-icon" style="background:${getRandomColor()}">${initials}</div>
-        <div class="comment-user-info">
-          <strong>${comment.userName}</strong>
-          <span class="comment-date">${comment.date}</span>
-        </div>
-      </div>
-      <p class="comment-text">${comment.text}</p>
-      <div class="comment-actions">
-        <button onclick="likeComment(${index})">Like (${comment.likes})</button>
-        <button onclick="dislikeComment(${index})">Dislike (${comment.dislikes})</button>
-        <button onclick="replyToComment(${index})">Reply</button>
-      </div>
-      <div class="replies" id="replies-${index}">
-        ${comment.replies.map(r => `
-          <div class="reply-card">
-            <div class="comment-icon" style="background:${getRandomColor()}">${getInitials(r.userName)}</div>
-            <div class="reply-content">
-              <strong>${r.userName}</strong> <span class="comment-date">${r.date}</span>
-              <p>${r.text}</p>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-    list.appendChild(card);
+  }).then(() => {
+    input.value = '';
+    loadComments();
+  }).catch(error => {
+    console.error("Error adding comment:", error);
   });
 }
 
-function likeComment(index) {
+function loadComments() {
+  db.collection('comments').orderBy('date', 'desc')
+    .onSnapshot(snapshot => {
+      const list = document.getElementById('comments-list');
+      list.innerHTML = '';
+      snapshot.forEach(doc => {
+        const comment = { id: doc.id, ...doc.data() };
+        renderOneComment(comment, list);
+      });
+    });
+}
+
+function renderOneComment(comment, container) {
+  const card = document.createElement('div');
+  card.className = 'comment-card';
+  card.innerHTML = `
+    <strong>${comment.userName}</strong> (${comment.date ? new Date(comment.date.seconds * 1000).toLocaleString() : ''})
+    <p>${comment.text}</p>
+    <button onclick="likeComment('${comment.id}')">👍 ${comment.likes || 0}</button>
+    <button onclick="dislikeComment('${comment.id}')">👎 ${comment.dislikes || 0}</button>
+  `;
+  container.appendChild(card);
+}
+
+function likeComment(commentId) {
   if (!isLoggedIn) {
     alert("You must be logged in to like.");
     return;
   }
-  comments[index].likes++;
-  renderComments();
+  const commentRef = db.collection('comments').doc(commentId);
+  commentRef.update({
+    likes: firebase.firestore.FieldValue.increment(1)
+  }).catch(error => {
+    console.error("Error liking comment:", error);
+  });
 }
 
-function dislikeComment(index) {
+function dislikeComment(commentId) {
   if (!isLoggedIn) {
     alert("You must be logged in to dislike.");
     return;
   }
-  comments[index].dislikes++;
-  renderComments();
-}
-
-async function loadDebateContent() {
-  const params = new URLSearchParams(window.location.search);
-  const debateId = params.get('debateId');
-  if (!debateId) return;
-  try {
-    const response = await fetch(`/api/pages/${debateId}`);
-    const debateData = await response.json();
-    console.log("Debate data:", debateData);
-    const debateTitleElem = document.querySelector('.debate-question');
-    if (debateTitleElem) {
-      const title = debateData.properties["TD:metadata"]?.rich_text?.[0]?.plain_text || 'Untitled Debate';
-      debateTitleElem.textContent = title;
-    }
-    const articleBtn = document.getElementById('article-btn');
-    if (articleBtn) {
-      articleBtn.href = `article.html?articleId=${debateId}`;
-    }
-  } catch (err) {
-    console.error("Error loading debate content:", err);
-  }
-}
-
-// -----------------------------
-// Carousel for Debates Section
-// -----------------------------
-// Instead of using translateX animations, we now maintain an array of debate data and re-render 4 cards.
-// Auto-rotate: every 3 seconds, rotate forward (move first debate to the end).
-setInterval(rotateDebatesSmooth, 3000);
-
-// Next and Prev button event handlers call the rotation functions.
-document.getElementById('debate-next').addEventListener('click', rotateDebatesSmooth);
-document.getElementById('debate-prev').addEventListener('click', rotateDebatesBackward);
-
-
-
-function rotateDebatesBackward() {
-  if (debatesData.length <= 1) return;
-  const last = debatesData.pop();
-  debatesData.unshift(last);
-  renderDebates();
+  const commentRef = db.collection('comments').doc(commentId);
+  commentRef.update({
+    dislikes: firebase.firestore.FieldValue.increment(1)
+  }).catch(error => {
+    console.error("Error disliking comment:", error);
+  });
 }
 
 // -----------------------------
 // Window Onload Initialization
 // -----------------------------
 window.onclick = function(event) {
-  const modal = document.getElementById('login-modal');
-  if (modal && event.target === modal) {
+  const loginModal = document.getElementById('login-modal');
+  const signupModal = document.getElementById('signup-modal');
+
+  if (loginModal && event.target === loginModal) {
     toggleLoginModal();
+  }
+  if (signupModal && event.target === signupModal) {
+    toggleSignupModal();
   }
 };
 
 window.onload = function() {
   updateUI();
   updateVotes();
-  renderComments();
+  loadComments();
   // Fetch debates and articles from Notion via your proxy endpoints
   fetchDebatesFromNotion();
   fetchArticlesFromNotion();

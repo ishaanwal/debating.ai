@@ -1,0 +1,21 @@
+<!-- navbar.html -->
+<header class="sticky-header">
+  <div class="logo">Debating.ai</div>
+  <nav class="top-nav">
+    <div class="nav-left">
+      <a href="index.html">Home</a>
+      <a href="all-debates.html">Debates</a>
+      <a href="all-articles.html">Articles</a>
+      <a href="writers.html">Writers</a>
+    </div>
+    <div class="nav-right">
+      <div id="profile-icon" class="profile-icon" onclick="toggleProfileMenu()" style="display: none;">
+        <span id="profile-initials"></span>
+      </div>
+      <div id="profile-menu" class="profile-menu" style="display: none;">
+        <a href="javascript:void(0)" onclick="logout()">Logout</a>
+      </div>
+      <span id="login-btn" onclick="toggleLoginModal()" style="display: none;">Login</span>
+    </div>
+  </nav>
+</header>
