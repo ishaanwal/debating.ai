@@ -911,15 +911,16 @@ main > div {
 /* New hero text container styling */
 /* New hero text container styling with gray background and blur effect */
 .hero-text-container {
-  max-width: 1100px;  /* match your other sections */
+  max-width: 1100px;
   margin: 0 auto;
-  background: rgba(128, 128, 128, 0.8);
+  background: black; /* Changed to black */
   backdrop-filter: blur(8px);
   color: #fff;
   padding: 2rem;
   border-radius: 8px;
   text-align: center;
 }
+
 
 .hero-text-container h1,
 .hero-text-container p {

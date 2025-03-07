@@ -9,7 +9,6 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <!-- Add Firestore SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script>
     // Your Firebase config
@@ -17,12 +16,17 @@
       apiKey: "AIzaSyApOxuZytlqccwyr-DcPE3ZlHHy5oaBJMw",
       authDomain: "login-e3258.firebaseapp.com",
       projectId: "login-e3258",
-      storageBucket: "login-e3258.firebasestorage.app",
+      storageBucket: "login-e3258.firebaseapp.com",
       messagingSenderId: "675822917685",
       appId: "1:675822917685:web:e72a98de5407abd938397c",
       measurementId: "G-TXYXRHWEPT"
     };
     firebase.initializeApp(firebaseConfig);
+  </script>
+  <!-- Extract debateId from URL so it can be used in comments -->
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const currentDebateId = params.get('debateId');
   </script>
 </head>
 <body>
@@ -37,22 +41,23 @@
     });
 </script>
 
-<!-- Debate Question at the top -->
+<!-- Debate Question -->
 <h1 id="debate-question" style="text-align:center; margin: 2rem auto; max-width: 800px; color: black;">
   Loading debate...
 </h1>
 
-<!-- Main 3-column Layout: Article (left), Comments (center), Poll (right) -->
-<main style="display: flex; gap: 2rem; max-width: 1200px; margin: 0 auto; padding-bottom: 5rem;">
+<!-- Main Layout: Article (left), Comments (center), Poll (right) -->
+<main style="display: flex; align-items: flex-start; gap: 2rem; max-width: 1200px; margin: 0 auto; padding-bottom: 5rem;">
   <!-- Left: Article Card -->
   <aside class="article-card" style="flex: 0 0 250px;">
-    <h3 style="color: black;">Article</h3>
-    <div class="featured-card" id="article-card" style="cursor: pointer;">
+    <div class="featured-card" id="article-card" style="cursor: pointer;" onclick="window.location.href='article.html?articleId=' + currentDebateId">
       <div class="featured-image" style="height: 200px; overflow: hidden;">
-        <img src="https://via.placeholder.com/400x200"
-             alt="Article Thumbnail"
-             id="article-card-image"
-             style="width: 100%; height: 100%; object-fit: cover;">
+        <img
+          src="https://via.placeholder.com/400x200"
+          alt="Article Thumbnail"
+          id="article-card-image"
+          style="width: 100%; height: 100%; object-fit: cover;"
+        >
       </div>
       <div class="featured-content" style="padding: 0.75rem;">
         <h3 id="article-card-title" style="font-size: 1.2rem;">Article Title</h3>
@@ -61,32 +66,18 @@
     </div>
   </aside>
 
+
   <!-- Center: Comments Section -->
   <section class="comments-section" style="flex: 1; text-align: left;">
     <h3 style="color: black; text-align: center;">Comments</h3>
     <div id="comments-list" class="comments-list"></div>
   </section>
 
-  <!-- Right: Poll Card (flip from "Have Your Say" to results) -->
-  <div id="poll-card" style="flex: 0 0 300px; position: relative; perspective: 1000px;">
-    <!-- Card inner container (for flipping effect if desired) -->
-    <div id="poll-card-inner" style="
-      width: 100%;
-      height: auto;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-      position: relative;
-    ">
+  <!-- Right: Poll Card -->
+  <div id="poll-card" style="flex: 0 0 300px; position: relative; perspective: 1000px; height: 300px; overflow: hidden;">
+    <div id="poll-card-inner" style="width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; position: relative;">
       <!-- Front side -->
-      <div id="poll-front" style="
-        width: 100%;
-        backface-visibility: hidden;
-        background: #f8f9fa;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 1rem;
-        box-sizing: border-box;
-      ">
+      <div id="poll-front" style="width: 100%; height: 100%; backface-visibility: hidden; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; padding: 1rem; box-sizing: border-box;">
         <h3 style="margin-top: 0;">Have Your Say</h3>
         <button class="yes-btn"
                 onclick="castVoteAndFlip('yes')"
@@ -101,19 +92,7 @@
       </div>
 
       <!-- Back side (results) -->
-      <div id="poll-back" style="
-        width: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        backface-visibility: hidden;
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 1rem;
-        box-sizing: border-box;
-        transform: rotateY(180deg);
-      ">
+      <div id="poll-back" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; backface-visibility: hidden; background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 1rem; box-sizing: border-box; transform: rotateY(180deg);">
         <h3 style="margin-top: 0;">Results</h3>
         <div style="margin-bottom: 0.75rem;">
           <span>Yes</span>
@@ -139,6 +118,7 @@
     </div>
   </div>
 </main>
+
 
 <!-- Floating Comment Bar -->
 <div class="fixed-comment-bar" style="
@@ -199,265 +179,36 @@
   </div>
 </div>
 
+<!-- Main JS file -->
 <script src="script.js"></script>
-<script>
-  /*
-    We have a 3-column layout:
-      1) Left: Article
-      2) Center: Comments
-      3) Right: Poll Card (with a flip effect)
-  */
 
-  // Additional poll flipping logic:
+<script>
+  /*******************************************
+   * Poll Flipping Logic
+   ********************************************/
   function castVoteAndFlip(side) {
-    castVote(side); // from script.js
-    // After casting vote, flip the card
+    castVote(side, currentDebateId); // pass currentDebateId so the vote updates the correct document
     const pollInner = document.getElementById('poll-card-inner');
     pollInner.style.transform = "rotateY(180deg)";
-    // Update results
     document.getElementById('vote-buttons-container')?.style.setProperty('display','none');
     document.getElementById('vote-results')?.style.setProperty('display','block');
   }
+
+
   function changeVoteFlip() {
-    // Flip back
     const pollInner = document.getElementById('poll-card-inner');
     pollInner.style.transform = "rotateY(0deg)";
-    // Reset poll
     document.getElementById('vote-results')?.style.setProperty('display','none');
     document.getElementById('vote-buttons-container')?.style.setProperty('display','block');
   }
 
-  // Ensure comment text wraps properly:
-  // We'll do this by forcing "white-space: pre-wrap; word-wrap: break-word" on .comment-text
-  // We'll do it inline for demonstration
-  // (In a real project, place it in style.css or an appropriate stylesheet.)
+  /*******************************************
+   * Firestore Comment Rendering
+   ********************************************/
 
-  // Overwrite renderOneComment to ensure text is in a box that wraps
-  function renderOneComment(comment, container, indentLevel) {
-    const card = document.createElement('div');
-    card.className = 'comment-card';
-    card.style.marginLeft = indentLevel > 0 ? (indentLevel * 20) + "px" : "0";
-    const initials = getInitials(comment.userName);
-    const replyIndicator = indentLevel > 0 ? '↳ ' : '';
-    const canDelete = (comment.userName === currentUserName);
-    const likeCount = comment.likedBy.length;
-    const dislikeCount = comment.dislikedBy.length;
-
-    card.innerHTML = `
-      <div class="comment-header">
-        <div class="comment-icon" style="background:${getRandomColor()}">${initials}</div>
-        <div class="comment-user-info">
-          <strong>${comment.userName}</strong>
-          <span class="comment-date">${comment.date}</span>
-        </div>
-      </div>
-      <p class="comment-text"
-         style="white-space: pre-wrap; word-wrap: break-word; margin-bottom:0.5rem;">
-        ${replyIndicator}${comment.text}
-      </p>
-      <div class="comment-actions" style="display: flex; gap: 1rem; font-size: 1.2rem; align-items: center;">
-        <button onclick="likeComment('${comment.id}')" style="background:none;border:none;cursor:pointer;">👍 (${likeCount})</button>
-        <button onclick="dislikeComment('${comment.id}')" style="background:none;border:none;cursor:pointer;">👎 (${dislikeCount})</button>
-        <button onclick="replyToComment('${comment.id}')" style="background:none;border:none;cursor:pointer;">↩</button>
-        ${canDelete ? `<button onclick="deleteComment('${comment.id}')" style="background:none;border:none;cursor:pointer;">🗑️</button>` : ''}
-      </div>
-    `;
-    container.appendChild(card);
-
-    // If there are replies, show/hide with a toggle
-    if (comment.replies && comment.replies.length > 0) {
-      const repliesContainer = document.createElement('div');
-      repliesContainer.id = "replies-" + comment.id;
-      repliesContainer.style.marginLeft = "20px";
-      repliesContainer.style.display = "none";
-
-      const toggleBtn = document.createElement('button');
-      toggleBtn.style.background = "none";
-      toggleBtn.style.border = "none";
-      toggleBtn.style.cursor = "pointer";
-      toggleBtn.style.fontSize = "0.9rem";
-      toggleBtn.style.color = "#007bff";
-
-      toggleBtn.textContent = (comment.replies.length === 1)
-        ? "Show reply"
-        : `Show ${comment.replies.length} replies`;
-
-      toggleBtn.onclick = function() {
-        if (repliesContainer.style.display === "none") {
-          repliesContainer.style.display = "block";
-          toggleBtn.textContent = "Hide replies";
-        } else {
-          repliesContainer.style.display = "none";
-          toggleBtn.textContent = (comment.replies.length === 1)
-            ? "Show reply"
-            : `Show ${comment.replies.length} replies`;
-        }
-      };
-      container.appendChild(toggleBtn);
-
-      comment.replies.forEach(r => {
-        renderOneComment(r, repliesContainer, indentLevel + 1);
-      });
-      container.appendChild(repliesContainer);
-    }
-  }
-
-  // We'll keep the rest of the logic (likeComment, dislikeComment, etc.) the same as before.
-  // The user wants everything else the same, just layout changes and text wrapping.
-  // So we rely on the existing script.js or code from the previous snippet.
-
-  // We'll just define or override the relevant functions here if needed:
-  // (Below is the minimal code needed to keep everything working.)
-
-  let replyingToId = null;
-
-  function addComment() {
-    if (!isLoggedIn) {
-      alert("You must be logged in to comment.");
-      return;
-    }
-    const input = document.getElementById('comment-input');
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return;
-
-    if (replyingToId) {
-      const target = findCommentById(replyingToId, comments);
-      if (target) {
-        target.replies.push({
-          id: generateCommentId(),
-          text: text,
-          userName: currentUserName || 'Anonymous',
-          date: new Date().toLocaleString(),
-          likedBy: [],
-          dislikedBy: [],
-          replies: []
-        });
-      }
-      replyingToId = null;
-    } else {
-      comments.unshift({
-        id: generateCommentId(),
-        text: text,
-        userName: currentUserName || 'Anonymous',
-        date: new Date().toLocaleString(),
-        likedBy: [],
-        dislikedBy: [],
-        replies: []
-      });
-    }
-
-    input.value = '';
-    input.placeholder = "Share your thoughts...";
-    renderComments();
-  }
-
-  function replyToComment(commentId) {
-    replyingToId = commentId;
-    const input = document.getElementById('comment-input');
-    const commentObj = findCommentById(commentId, comments);
-    if (commentObj) {
-      input.placeholder = "Replying to " + commentObj.userName + "...";
-      input.focus();
-    }
-  }
-
-  function generateCommentId() {
-    return 'c' + Math.random().toString(36).substr(2, 9);
-  }
-  function findCommentById(id, arr) {
-    for (const c of arr) {
-      if (c.id === id) return c;
-      const found = findCommentById(id, c.replies);
-      if (found) return found;
-    }
-    return null;
-  }
-
-  function renderComments() {
-    const list = document.getElementById('comments-list');
-    if (!list) return;
-    list.innerHTML = '';
-    comments.forEach(c => renderOneComment(c, list, 0));
-  }
-
-  function deleteComment(commentId) {
-    if (!isLoggedIn) {
-      alert("You must be logged in to delete a comment.");
-      return;
-    }
-    if (removeCommentById(commentId, comments)) {
-      renderComments();
-    } else {
-      alert("You can only delete your own comment.");
-    }
-  }
-  function removeCommentById(commentId, arr) {
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i].id === commentId) {
-        if (arr[i].userName === currentUserName) {
-          arr.splice(i, 1);
-          return true;
-        }
-        return false;
-      }
-      if (removeCommentById(commentId, arr[i].replies)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function likeComment(commentId) {
-    if (!isLoggedIn) {
-      alert("You must be logged in to like.");
-      return;
-    }
-    const c = findCommentById(commentId, comments);
-    if (!c) return;
-    const dislikeIndex = c.dislikedBy.indexOf(currentUserName);
-    if (dislikeIndex !== -1) {
-      c.dislikedBy.splice(dislikeIndex, 1);
-    }
-    const likeIndex = c.likedBy.indexOf(currentUserName);
-    if (likeIndex !== -1) {
-      c.likedBy.splice(likeIndex, 1);
-    } else {
-      c.likedBy.push(currentUserName);
-    }
-    renderComments();
-  }
-
-  function dislikeComment(commentId) {
-    if (!isLoggedIn) {
-      alert("You must be logged in to dislike.");
-      return;
-    }
-    const c = findCommentById(commentId, comments);
-    if (!c) return;
-    const likeIndex = c.likedBy.indexOf(currentUserName);
-    if (likeIndex !== -1) {
-      c.likedBy.splice(likeIndex, 1);
-    }
-    const dislikeIndex = c.dislikedBy.indexOf(currentUserName);
-    if (dislikeIndex !== -1) {
-      c.dislikedBy.splice(dislikeIndex, 1);
-    } else {
-      c.dislikedBy.push(currentUserName);
-    }
-    renderComments();
-  }
-
-  // Voting logic from script.js
-  function castVoteAndShowResult(side) {
-    castVote(side);
-    // Not used in the new approach, but let's keep it for reference
-  }
-  function changeVote() {
-    // Not used in the new approach
-  }
-
-  // We'll also set the debate question text
+  /*******************************************
+   * Debate & Article Loading
+   ********************************************/
   function loadDebateContent() {
     const params = new URLSearchParams(window.location.search);
     const debateId = params.get('debateId');
@@ -473,7 +224,6 @@
       .catch(err => console.error("Error loading debate content:", err));
   }
 
-  // Load article card for the left side
   function loadArticleCard() {
     const params = new URLSearchParams(window.location.search);
     const debateId = params.get('debateId');
@@ -483,7 +233,7 @@
       .then(articleData => {
         const title = articleData.properties.data?.title?.[0]?.plain_text || 'No Title';
         const snippet = articleData.properties.Snippet?.rich_text?.[0]?.plain_text || 'No snippet available.';
-        const image = articleData.properties.Cover?.files?.[0]?.file?.url || "https://via.placeholder.com/400x200";
+        const image = articleData.properties.Cover?.files?.[1]?.file?.url || "https://via.placeholder.com/400x200";
         document.getElementById('article-card-image').src = image;
         document.getElementById('article-card-title').textContent = title;
         document.getElementById('article-card-snippet').textContent = snippet;
@@ -493,11 +243,15 @@
       });
   }
 
+  /*******************************************
+   * On Window Load
+   ********************************************/
   window.onload = function() {
-    updateUI();
-    updateVotes();   // from script.js
-    renderComments();
+    updateUI();        // from script.js
+    updateVotes();     // from script.js
+    loadComments();    // from script.js – should query with debateId filter
     loadDebateContent();
+    listenToVotes(currentDebateId);
     loadArticleCard();
 
     firebase.auth().onAuthStateChanged((user) => {
